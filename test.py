@@ -23,8 +23,7 @@ for i in range(100000):
 
 print("graph plotted")
 time_start = int(time.time() * 1000)
-getPath(userArr[0], userArr[10000])
-# print(getPath(userArr[0], userArr[10000]))
+print(getPath(userArr[0], userArr[10000]))
 time_end = int(time.time() * 1000)
 print("graph plotted", time_end-time_start)
 
