@@ -29,10 +29,14 @@ class PathNode:
     def getPerson(self):
         return self.user
     
-    # def collapse(self, startWithRoot):
-    #     path = list()
-    #     node = self
-    #     # while (node != None):
+    def collapse(self):
+        listOfUsers = []
+        listOfUsers.append(self.user.getId())
+        node = self.previousNode
+        while node is not None:
+            listOfUsers.append(node.user.getId())
+            node = node.previousNode
+        return listOfUsers
 
 class BFSData:
 
@@ -45,9 +49,12 @@ class BFSData:
     
     def isFinished(self):
         return self.toVisit.qsize()
+    
+    def getVisited(self):
+        return self.visited
 
     
-def searchLevel(peopleMap, primary, secondary):
+def searchLevel(primary, secondary):
     count = primary.toVisit.qsize()
     for i in range(count):
         node = primary.toVisit.get()
@@ -67,28 +74,40 @@ def searchLevel(peopleMap, primary, secondary):
                 primary.visited[friend.getId()] = newPathNode
     return None
 
-userA = User("Ankit1", 1)
-userB = User("Ankit2", 2)
-userC = User("Ankit3", 3)
-userD = User("Ankit4", 4)
+def mergePath(bfsdata1, bfsdata2, person):
+    primaryVisitedList = bfsdata1.getVisited()
+    secondaryVisitedList = bfsdata2.getVisited()
+    personId = person.getId()
+    primaryUserList = primaryVisitedList[personId].collapse()
+    secondaryUserList = secondaryVisitedList[personId].collapse()
+    return primaryUserList[::-1] + secondaryUserList[1:]
 
-userA.addFriend(userB)
-userB.addFriend(userC)
-userC.addFriend(userD)
+userArr = []
+lastUser = None
+for i in range(10000):
+    name = "Ankit" + str(i)
+    user = User(name, i)
+    if lastUser is not None:
+        lastUser.addFriend(user)
+    userArr.append(user)
+    lastUser = user
 
+# userArr[0].addFriend(userArr[100])
 
-sourceData = BFSData(userA)
-destinationData = BFSData(userD)
+sourceData = BFSData(userArr[100])
+destinationData = BFSData(userArr[102])
 
 while sourceData.isFinished() > 0 and destinationData.isFinished() > 0:
     # search from source
     peopleMap = {}
-    collision = searchLevel(peopleMap, sourceData, destinationData)
+    collision = searchLevel(sourceData, destinationData)
     if collision is not None:
+        print(mergePath(sourceData, destinationData, collision))
         print("finally match found on primary")
-    collision = searchLevel(peopleMap, destinationData, sourceData)
 
+    collision = searchLevel(destinationData, sourceData)
     if collision is not None:
+        print(mergePath(sourceData, destinationData, collision))
         print("finally match found on secondary")
 
 
